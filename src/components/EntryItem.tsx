@@ -2,9 +2,11 @@ import React, { SetStateAction } from "react";
 
 function EntryItem({
   entry,
-  setCurrentEntry
+  isCurrentEntry,
+  setCurrentEntry,
 }: {
   entry: EntryMetadata,
+  isCurrentEntry: boolean,
   setCurrentEntry: React.Dispatch<SetStateAction<string | null>>
 }) {
   const datetimeObject = new Date(entry.datetime);
@@ -19,13 +21,25 @@ function EntryItem({
     minute: "2-digit",
     hour12: true
   }).format(datetimeObject);
+  const datetimeFormatted = `${date} | ${day} | ${time}`
 
   return (
-    <div className="px-4 py-2 cursor-pointer" onClick={() => setCurrentEntry(entry.id)}>
-      <p>{date} | {day} | {time}</p>
-      <p>{entry.title}</p>
+    <div
+      className={`px-4 py-4 h-16 cursor-pointer grid grid-rows-2 items-center gap-y-4 ${
+        isCurrentEntry ? "bg-(--color-bg-strong)": "hover:bg-(--color-bg-medium)"
+      } transition-colors`}
+      onClick={() => setCurrentEntry(entry.id)}
+    >
+      <p className={`text-sm leading-tight ${entry.title ? "" : "row-span-2 self-center"}`}>
+        {datetimeFormatted}
+      </p>
+      {entry.title && (
+        <p className="text-sm leading-tight">
+          {entry.title}
+        </p>
+      )}
     </div>
-  )
+  );
 }
 
 export default EntryItem;

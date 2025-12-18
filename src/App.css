@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --color-text: #eceef3;
+  --color-fg: #eceef3;
+  --color-fg-danger: #fac1c1;
+  --color-fg-success: #9add9b;
+  --color-bg-strong: #181717;
+  --color-bg-medium: #252526;
+  --color-bg-weak: #2d2d2e;
 }
 
 @font-face {
@@ -11,9 +16,4 @@
 
 body {
   font-family: Inter;
-  color: var(--color-text);
-}
-
-input::placeholder {
-  color: var(--color-text);
 }

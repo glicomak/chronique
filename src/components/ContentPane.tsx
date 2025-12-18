@@ -22,18 +22,18 @@ function ContentPane({
         setContent(data.content);
         setIsDirty(false);
 
-        const dateObject = new Date(data.datetime);
+        const datetimeObject = new Date(data.datetime);
         const date = new Intl.DateTimeFormat("en-US", {
           month: "short",
           day: "numeric",
           year: "numeric"
-        }).format(dateObject);
-        const day = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(dateObject);
+        }).format(datetimeObject);
+        const day = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(datetimeObject);
         const time = new Intl.DateTimeFormat("en-US", {
           hour: "numeric",
           minute: "2-digit",
           hour12: true
-        }).format(dateObject);
+        }).format(datetimeObject);
 
         setDatetimeFormatted(`${date} | ${day} | ${time}`);
       })
@@ -73,14 +73,14 @@ function ContentPane({
   }, [content]);
 
   return (
-    <main className="flex-1 bg-[#181717] p-4">
+    <main className="flex-1 bg-(--color-bg-strong) p-4">
       {id ? (
         <>
           <p className="mb-4">
             {isDirty ? (
-              <span className="text-[#fac1c1]">Unsaved</span>
+              <span className="text-(--color-fg-danger)">Unsaved</span>
             ) : (
-              <span className="text-[#9add9b]">Saved</span>
+              <span className="text-(--color-fg-success)">Saved</span>
             )}
           </p>
 
@@ -91,7 +91,7 @@ function ContentPane({
               setTitle(e.target.value);
               setIsDirty(true);
             }}
-            className="w-full mb-4 text-2xl font-medium outline-none"
+            className="w-full mb-4 text-2xl font-medium outline-none placeholder:text-(--color-fg)"
           />
 
           {title !== "" && (

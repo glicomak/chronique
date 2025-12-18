@@ -17,8 +17,8 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen w-screen flex">
-      <SidePane entries={entries} setEntries={setEntries} setCurrentEntry={setCurrentEntry} />
+    <div className="h-screen w-screen text-(--color-fg) flex">
+      <SidePane entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} />
       <ContentPane id={currentEntry} setEntries={setEntries} />
     </div>
   );
