@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
+:root {
+  --color-text: #eceef3;
+}
+
 @font-face {
-    font-family: Inter;
-    src: url('./fonts/Inter.ttf')
+  font-family: Inter;
+  src: url('./fonts/Inter.ttf');
 }
 
 body {
-    font-family: Inter;
+  font-family: Inter;
+  color: var(--color-text);
+}
+
+input::placeholder {
+  color: var(--color-text);
 }

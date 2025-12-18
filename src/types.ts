@@ -16,5 +16,5 @@ type Entry = {
   datetime: string,
   title: string,
   tags: Tag[],
-  content: String
+  content: string
 }

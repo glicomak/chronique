@@ -25,15 +25,15 @@ pub fn create_entry(app: AppHandle) -> Result<EntryMetadata, String> {
         tags: vec![]
     };
 
-    let mut metadata_file = entry_path.clone();
-    metadata_file.push("metadata.json");
+    let mut metadata_path = entry_path.clone();
+    metadata_path.push("metadata.json");
     let metadata_json = serde_json::to_string_pretty(&metadata).map_err(|e| e.to_string())?;
-    let mut f = File::create(metadata_file).map_err(|e| e.to_string())?;
-    f.write_all(metadata_json.as_bytes()).map_err(|e| e.to_string())?;
+    let mut metadata_file = File::create(metadata_path).map_err(|e| e.to_string())?;
+    metadata_file.write_all(metadata_json.as_bytes()).map_err(|e| e.to_string())?;
 
-    let mut content_file = entry_path.clone();
-    content_file.push("content.txt");
-    File::create(content_file).map_err(|e| e.to_string())?;
+    let mut content_path = entry_path.clone();
+    content_path.push("content.txt");
+    File::create(content_path).map_err(|e| e.to_string())?;
 
     Ok(metadata)
 }
@@ -86,18 +86,48 @@ pub fn get_entry(app: AppHandle, id: String) -> Result<Entry, String> {
 
     let mut metadata_path = entry_path.clone();
     metadata_path.push("metadata.json");
-    let metadata_str =
-        std::fs::read_to_string(&metadata_path).map_err(|e| e.to_string())?;
-    let metadata: EntryMetadata =
-        serde_json::from_str(&metadata_str).map_err(|e| e.to_string())?;
+    let metadata_str = std::fs::read_to_string(&metadata_path).map_err(|e| e.to_string())?;
+    let metadata: EntryMetadata = serde_json::from_str(&metadata_str).map_err(|e| e.to_string())?;
 
     let mut content_path = entry_path;
     content_path.push("content.txt");
-    let content =
-        std::fs::read_to_string(&content_path).map_err(|e| e.to_string())?;
+    let content = std::fs::read_to_string(&content_path).map_err(|e| e.to_string())?;
 
     Ok(Entry {
         id: metadata.id,
+        title: metadata.title,
+        datetime: metadata.datetime,
+        tags: metadata.tags,
+        content
+    })
+}
+
+#[tauri::command]
+pub fn update_entry(
+    app: AppHandle,
+    id: String,
+    title: String,
+    content: String
+) -> Result<Entry, String> {
+    let entry_path = get_dir(&app, format!("entries/{id}"));
+
+    let mut metadata_path = entry_path.clone();
+    metadata_path.push("metadata.json");
+    let metadata_str = std::fs::read_to_string(&metadata_path).map_err(|e| e.to_string())?;
+    let mut metadata: EntryMetadata = serde_json::from_str(&metadata_str).map_err(|e| e.to_string())?;
+
+    metadata.title = title.clone();
+    let updated_metadata_json = serde_json::to_string_pretty(&metadata).map_err(|e| e.to_string())?;
+    let mut metadata_file = File::create(&metadata_path).map_err(|e| e.to_string())?;
+    metadata_file.write_all(updated_metadata_json.as_bytes()).map_err(|e| e.to_string())?;
+
+    let mut content_path = entry_path.clone();
+    content_path.push("content.txt");
+    let mut content_file = File::create(&content_path).map_err(|e| e.to_string())?;
+    content_file.write_all(content.as_bytes()).map_err(|e| e.to_string())?;
+
+    Ok(Entry {
+        id,
         title: metadata.title,
         datetime: metadata.datetime,
         tags: metadata.tags,

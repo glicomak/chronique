@@ -1,30 +1,119 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-function ContentPane({ currentEntry }: { currentEntry: String | null }) {
-  const [entry, setEntry] = useState<Entry | null>(null);
+function ContentPane({
+  id,
+  setEntries
+}: {
+  id: string | null,
+  setEntries: React.Dispatch<SetStateAction<EntryMetadata[]>>
+}) {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [datetimeFormatted, setDatetimeFormatted] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (currentEntry === null) {
-      return;
-    }
-    invoke<Entry>("get_entry", { id: currentEntry })
-      .then((data) => setEntry(data))
-      .catch((error) => console.error("Failed to fetch entry:", error));
-  }, [currentEntry]);
+    if (!id) return;
+
+    invoke<Entry>("get_entry", { id })
+      .then((data) => {
+        setTitle(data.title);
+        setContent(data.content);
+        setIsDirty(false);
+
+        const dateObject = new Date(data.datetime);
+        const date = new Intl.DateTimeFormat("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        }).format(dateObject);
+        const day = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(dateObject);
+        const time = new Intl.DateTimeFormat("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        }).format(dateObject);
+
+        setDatetimeFormatted(`${date} | ${day} | ${time}`);
+      })
+      .catch(console.error);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    setEntries(prev =>
+      prev.map(e =>
+        e.id === id ? { ...e, title } : e
+      )
+    );
+  }, [title, id, setEntries]);
+
+  const saveEntry = useCallback(async () => {
+    if (!id || !isDirty) return;
+
+    await invoke("update_entry", { id, title, content });
+    setIsDirty(false);
+  }, [id, title, content, isDirty]);
+
+  useEffect(() => {
+    if (!isDirty || !id) return;
+
+    const timeout = window.setTimeout(saveEntry, 3000);
+    return () => clearTimeout(timeout);
+  }, [title, content, isDirty, id, saveEntry]);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  }, [content]);
 
   return (
     <main className="flex-1 bg-[#181717] p-4">
-      {entry !== null ? (
+      {id ? (
         <>
-          <h1 className="mb-4 text-2xl font-medium">{entry.title}</h1>
-          <p>{entry.content}</p>
+          <p className="mb-4">
+            {isDirty ? (
+              <span className="text-[#fac1c1]">Unsaved</span>
+            ) : (
+              <span className="text-[#9add9b]">Saved</span>
+            )}
+          </p>
+
+          <input
+            placeholder={datetimeFormatted}
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setIsDirty(true);
+            }}
+            className="w-full mb-4 text-2xl font-medium outline-none"
+          />
+
+          {title !== "" && (
+            <h2 className="mb-4 text-lg">{datetimeFormatted}</h2>
+          )}
+
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setIsDirty(true);
+            }}
+            className="w-full resize-none overflow-hidden outline-none"
+            rows={1}
+          />
         </>
       ) : (
         <p>Click on an entry in the sidepane to view its content.</p>
       )}
     </main>
-  )
+  );
 }
 
 export default ContentPane;

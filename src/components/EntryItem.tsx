@@ -1,6 +1,12 @@
 import React, { SetStateAction } from "react";
 
-function EntryItem({ entry, setCurrentEntry }: { entry: EntryMetadata, setCurrentEntry: React.Dispatch<SetStateAction<String | null>> }) {
+function EntryItem({
+  entry,
+  setCurrentEntry
+}: {
+  entry: EntryMetadata,
+  setCurrentEntry: React.Dispatch<SetStateAction<string | null>>
+}) {
   const datetimeObject = new Date(entry.datetime);
   const date = new Intl.DateTimeFormat("en-US", {
     month: "short",
