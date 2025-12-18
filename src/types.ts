@@ -4,9 +4,17 @@ type Tag = {
   color: string
 }
 
-type EntryMeta = {
+type EntryMetadata = {
   id: string,
   datetime: string,
   title: string,
   tags: Tag[]
+}
+
+type Entry = {
+  id: string,
+  datetime: string,
+  title: string,
+  tags: Tag[],
+  content: String
 }

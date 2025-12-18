@@ -1,6 +1,6 @@
-function EntryItem(props: {entry: EntryMeta}) {
-  const entry = props.entry;
+import React, { SetStateAction } from "react";
 
+function EntryItem({ entry, setCurrentEntry }: { entry: EntryMetadata, setCurrentEntry: React.Dispatch<SetStateAction<String | null>> }) {
   const datetimeObject = new Date(entry.datetime);
   const date = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -15,7 +15,7 @@ function EntryItem(props: {entry: EntryMeta}) {
   }).format(datetimeObject);
 
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-2 cursor-pointer" onClick={() => setCurrentEntry(entry.id)}>
       <p>{date} | {day} | {time}</p>
       <p>{entry.title}</p>
     </div>
