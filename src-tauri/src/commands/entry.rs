@@ -1,17 +1,11 @@
 use crate::models::{Entry, EntryMetadata};
+use crate::utils::get_dir;
+
 use chrono::Utc;
 use std::fs::{self, File};
 use std::io::Write;
-use std::path::{Path, PathBuf};
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 use uuid::Uuid;
-
-fn get_dir(app: &AppHandle, relative: impl AsRef<Path>) -> PathBuf {
-    let mut path = app.path().app_data_dir().expect("app data dir not found");
-    path.push(relative);
-    fs::create_dir_all(&path).expect("failed to create directory");
-    path
-}
 
 #[tauri::command]
 pub fn create_entry(app: AppHandle) -> Result<EntryMetadata, String> {

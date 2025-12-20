@@ -3,24 +3,34 @@ import { invoke } from "@tauri-apps/api/core";
 
 import ContentPane from "./components/ContentPane";
 import SidePane from "./components/SidePane";
+import TagManager from "./components/TagManager";
 
 import "./App.css";
 
 function App() {
   const [entries, setEntries] = useState<EntryMetadata[]>([]);
   const [currentEntry, setCurrentEntry] = useState<string | null>(null);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
 
   useEffect(() => {
     invoke<EntryMetadata[]>("get_entries")
       .then((data) => setEntries(data))
       .catch((error) => console.error("Failed to fetch entries:", error));
+
+    invoke<Tag[]>("get_tags")
+      .then((data) => setTags(data))
+      .catch((error) => console.error("Failed to fetch tags: ", error));
   }, []);
 
   return (
-    <div className="h-screen w-screen text-(--color-fg) flex">
-      <SidePane entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} />
-      <ContentPane id={currentEntry} setEntries={setEntries} />
-    </div>
+    <>
+      <div className="h-screen w-screen flex">
+        <SidePane setIsTagManagerOpen={setIsTagManagerOpen} entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} />
+        <ContentPane id={currentEntry} setEntries={setEntries} />
+      </div>
+      <TagManager tags={tags} setTags={setTags} isOpen={isTagManagerOpen} onClose={() => setIsTagManagerOpen(false)} />
+    </>
   );
 }
 

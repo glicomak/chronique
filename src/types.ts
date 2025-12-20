@@ -1,7 +1,8 @@
 type Tag = {
   id: string,
   name: string,
-  color: string
+  bgColor: string,
+  fgColor: string
 }
 
 type EntryMetadata = {
