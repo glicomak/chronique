@@ -9,13 +9,13 @@ type EntryMetadata = {
   id: string,
   datetime: string,
   title: string,
-  tags: Tag[]
+  tags: string[]
 }
 
 type Entry = {
   id: string,
   datetime: string,
   title: string,
-  tags: Tag[],
+  tags: string[],
   content: string
 }
