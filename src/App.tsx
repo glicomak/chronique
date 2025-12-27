@@ -21,7 +21,7 @@ function App() {
 
     invoke<Tag[]>("get_tags")
       .then((data) => setTags(data))
-      .catch((error) => console.error("Failed to fetch tags: ", error));
+      .catch((error) => console.error("Failed to fetch tags:", error));
   }, []);
 
   useEffect(() => {
@@ -32,14 +32,41 @@ function App() {
     setTagMap(map);
   }, [tags]);
 
+  function deleteEntry(entryId: string) {
+    setEntries(prev => prev.filter(entry => entry.id !== entryId));
+
+    invoke("delete_entry", { entryId }).catch(err => {
+      console.error("Failed to delete entry:", err);
+    });
+  }
+
+  function deleteTag(tagId: string) {
+    setTags(prev => prev.filter(tag => tag.id !== tagId));
+
+    setTagMap(prev => {
+      const { [tagId]: _, ...rest } = prev;
+      return rest;
+    });
+
+    setEntries(prev =>
+      prev.map(entry => ({
+        ...entry,
+        tags: entry.tags.filter(tid => tid !== tagId)
+      }))
+    );
+
+    invoke("delete_tag", { tagId }).catch(err => {
+      console.error("Failed to delete tag: ", err);
+    });
+  }
 
   return (
     <>
       <div className="h-screen w-screen flex">
-        <SidePane setIsTagManagerOpen={setIsTagManagerOpen} entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} />
+        <SidePane setIsTagManagerOpen={setIsTagManagerOpen} entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} deleteEntry={deleteEntry} tagMap={tagMap} />
         <ContentPane id={currentEntry} setEntries={setEntries} tagMap={tagMap} />
       </div>
-      <TagManager tags={tags} setTags={setTags} isOpen={isTagManagerOpen} onClose={() => setIsTagManagerOpen(false)} />
+      <TagManager tags={tags} setTags={setTags} deleteTag={deleteTag} isOpen={isTagManagerOpen} onClose={() => setIsTagManagerOpen(false)} />
     </>
   );
 }

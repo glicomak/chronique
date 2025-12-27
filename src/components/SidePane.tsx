@@ -10,13 +10,17 @@ function SidePane({
   entries,
   setEntries,
   currentEntry,
-  setCurrentEntry
+  setCurrentEntry,
+  deleteEntry,
+  tagMap
 }: {
   setIsTagManagerOpen: React.Dispatch<SetStateAction<boolean>>,
   entries: EntryMetadata[],
   setEntries: React.Dispatch<SetStateAction<EntryMetadata[]>>,
   currentEntry: string | null,
-  setCurrentEntry: React.Dispatch<SetStateAction<string | null>>
+  setCurrentEntry: React.Dispatch<SetStateAction<string | null>>,
+  deleteEntry: (entryId: string) => void,
+  tagMap: Record<string, Tag>
 }) {
   return (
     <aside className="w-[20%] bg-(--color-bg-weak)">
@@ -43,7 +47,7 @@ function SidePane({
         </div>
       </div>
       {entries.map(entry => (
-        <EntryItem entry={entry} isCurrentEntry={entry.id === currentEntry} setCurrentEntry={setCurrentEntry} />
+        <EntryItem key={entry.id} entry={entry} isCurrentEntry={entry.id === currentEntry} setCurrentEntry={setCurrentEntry} deleteEntry={deleteEntry} tagMap={tagMap} />
       ))}
     </aside>
   );

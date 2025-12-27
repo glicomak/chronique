@@ -33,6 +33,45 @@ pub fn create_entry(app: AppHandle) -> Result<EntryMetadata, String> {
 }
 
 #[tauri::command]
+pub fn delete_entry(app: AppHandle, entry_id: String) -> Result<(), String> {
+    let entries_dir = get_dir(&app, "entries");
+    let tags_dir = get_dir(&app, "tags");
+
+    let entry_path = entries_dir.join(&entry_id);
+    let metadata_path = entry_path.join("metadata.json");
+
+    if !metadata_path.exists() {
+        return Err("Entry not found".to_string());
+    }
+    let metadata_str =
+        fs::read_to_string(&metadata_path).map_err(|e| e.to_string())?;
+    let metadata: crate::models::EntryMetadata =
+        serde_json::from_str(&metadata_str).map_err(|e| e.to_string())?;
+
+    for tag_id in metadata.tags {
+        let entries_txt = tags_dir.join(&tag_id).join("entries.txt");
+        if !entries_txt.exists() {
+            continue;
+        }
+
+        let contents = match fs::read_to_string(&entries_txt) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        let updated: String = contents
+            .lines()
+            .filter(|line| *line != entry_id)
+            .map(|l| format!("{l}\n"))
+            .collect();
+        fs::write(entries_txt, updated).map_err(|e| e.to_string())?;
+    }
+
+    fs::remove_dir_all(entry_path).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_entries(app: AppHandle) -> Result<Vec<EntryMetadata>, String> {
     let entries_dir = get_dir(&app, "entries");
 

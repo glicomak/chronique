@@ -112,39 +112,43 @@ function ContentPane({
           )}
 
           <div className="mb-6 flex flex-wrap items-center gap-2">
-            {tags.map(tagId => {
-              const tag = tagMap[tagId];
-              if (!tag) return null;
+            {[...tags]
+              .sort((a, b) => 
+                (tagMap[a]?.name || "").localeCompare(tagMap[b]?.name || "")
+              ).map(tagId => {
+                const tag = tagMap[tagId];
+                if (!tag) return null;
 
-              return (
-                <div
-                  key={tag.id}
-                  className="flex items-center gap-1 rounded px-2 py-0.5 text-sm"
-                  style={{
-                    backgroundColor: tag.bgColor,
-                    color: tag.fgColor
-                  }}
-                >
-                  <span>{tag.name}</span>
-                  <button
-                    className="ml-1 rounded hover:bg-black/10 px-1 transition-all cursor-pointer"
-                    onClick={() => {
-                      invoke("remove_tag_from_entry", { entryId: id, tagId: tag.id });
-                      setTags(prev => prev.filter(tid => tid !== tag.id));
-                      setEntries(prev =>
-                        prev.map(e =>
-                          e.id === id
-                            ? { ...e, tags: e.tags.filter(tid => tid !== tag.id) }
-                            : e
-                        )
-                      );
+                return (
+                  <div
+                    key={tag.id}
+                    className="flex items-center gap-1 rounded px-2 py-0.5 text-sm"
+                    style={{
+                      backgroundColor: tag.bgColor,
+                      color: tag.fgColor
                     }}
                   >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
+                    <span>{tag.name}</span>
+                    <button
+                      className="ml-1 rounded hover:bg-black/10 px-1 transition-all cursor-pointer"
+                      onClick={() => {
+                        invoke("remove_tag_from_entry", { entryId: id, tagId: tag.id });
+                        setTags(prev => prev.filter(tid => tid !== tag.id));
+                        setEntries(prev =>
+                          prev.map(e =>
+                            e.id === id
+                              ? { ...e, tags: e.tags.filter(tid => tid !== tag.id) }
+                              : e
+                          )
+                        );
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })
+            }
 
             <div className="relative">
               <button
@@ -192,33 +196,6 @@ function ContentPane({
                 </div>
               )}
             </div>
-
-            {isTagDropdownOpen && (
-              <div
-                className="absolute left-0 top-full mt-1 z-20
-                          min-w-35 rounded bg-[#252526]
-                          border border-white/10 shadow-lg"
-              >
-                {availableTags.length === 0 ? (
-                  <div className="px-2 py-1 text-sm text-white/50">
-                    No tags
-                  </div>
-                ) : (
-                  availableTags.map(tag => (
-                    <button
-                      key={tag.id}
-                      className="w-full text-left px-2 py-1 text-sm
-                                hover:bg-white/10 transition-colors"
-                      onClick={() => {
-                        setIsTagDropdownOpen(false);
-                      }}
-                    >
-                      {tag.name}
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
           </div>
 
           <textarea

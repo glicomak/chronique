@@ -32,6 +32,54 @@ pub fn create_tag(app: AppHandle) -> Result<Tag, String> {
 }
 
 #[tauri::command]
+pub fn delete_tag(app: AppHandle, tag_id: String) -> Result<(), String> {
+    let tags_dir = get_dir(&app, "tags");
+    let entries_dir = get_dir(&app, "entries");
+
+    let tag_path = tags_dir.join(&tag_id);
+    let entries_list_path = tag_path.join("entries.txt");
+
+    if entries_list_path.exists() {
+        let contents = fs::read_to_string(&entries_list_path)
+            .map_err(|e| e.to_string())?;
+
+        for entry_id in contents.lines() {
+            let entry_metadata_path =
+                entries_dir.join(entry_id).join("metadata.json");
+            if !entry_metadata_path.exists() {
+                continue;
+            }
+
+            let metadata_str = match fs::read_to_string(&entry_metadata_path) {
+                Ok(c) => c,
+                Err(_) => continue,
+            };
+            let mut metadata: crate::models::EntryMetadata =
+                match serde_json::from_str(&metadata_str) {
+                    Ok(m) => m,
+                    Err(_) => continue,
+                };
+
+            let original_len = metadata.tags.len();
+            metadata.tags.retain(|t| t != &tag_id);
+            if metadata.tags.len() != original_len {
+                let updated =
+                    serde_json::to_string_pretty(&metadata)
+                        .map_err(|e| e.to_string())?;
+                fs::write(entry_metadata_path, updated)
+                    .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+
+    if tag_path.exists() {
+        fs::remove_dir_all(tag_path).map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
 pub fn get_tags(app: AppHandle) -> Result<Vec<Tag>, String> {
     let tags_path = get_dir(&app, "tags");
 

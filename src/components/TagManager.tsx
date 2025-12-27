@@ -8,11 +8,13 @@ import TagItem from "./TagItem";
 function TagManager({
   tags,
   setTags,
+  deleteTag,
   isOpen,
   onClose
 }: {
   tags: Tag[],
   setTags: React.Dispatch<SetStateAction<Tag[]>>,
+  deleteTag: (tagId: string) => void,
   isOpen: boolean,
   onClose: () => void
 }) {
@@ -31,7 +33,6 @@ function TagManager({
           <button
             className="h-8 w-8 flex items-center justify-center rounded
                        hover:bg-white/10 transition-colors"
-            aria-label="Create tag"
           >
             <Plus size={18} onClick={() =>
               invoke<Tag>("create_tag")
@@ -45,7 +46,7 @@ function TagManager({
             {tags
               .sort((a, b) => a.name.localeCompare(b.name))
               .map(tag => (
-                <TagItem key={tag.id} tag={tag} setTags={setTags} />
+                <TagItem key={tag.id} tag={tag} setTags={setTags} deleteTag={deleteTag} />
               ))
             }
           </div>

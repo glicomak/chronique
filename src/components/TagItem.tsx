@@ -1,14 +1,16 @@
 import { SetStateAction, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { Save } from "lucide-react";
+import { Save, Trash } from "lucide-react";
 
 function TagItem({
   tag,
-  setTags
+  setTags,
+  deleteTag
 }: {
   tag: Tag,
-  setTags: React.Dispatch<SetStateAction<Tag[]>>
+  setTags: React.Dispatch<SetStateAction<Tag[]>>,
+  deleteTag: (tagId: string) => void,
 }) {
   const id = tag.id;
 
@@ -16,6 +18,7 @@ function TagItem({
   const [bgColor, setBgColor] = useState<string>(tag.bgColor);
   const [fgColor, setFgColor] = useState<string>(tag.fgColor);
   const [isDirty, setIsDirty] = useState<boolean>(false);
+  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState<boolean>(false);
 
   return (
     <div className="flex items-center gap-2 rounded px-2 py-1">
@@ -64,6 +67,22 @@ function TagItem({
         }}
       >
         <Save size={14} />
+      </button>
+
+      <button
+        className={`h-7 w-7 flex items-center justify-center rounded transition-colors hover:bg-white/10 cursor-pointer
+          ${isDeleteConfirmed && "text-(--color-fg-danger)"}`}
+        onClick={() => {
+          if (isDeleteConfirmed) {
+            deleteTag(id);
+            setIsDeleteConfirmed(false);
+          } else {
+            setIsDeleteConfirmed(true);
+            setTimeout(() => setIsDeleteConfirmed(false), 2000);
+          }
+        }}
+      >
+        <Trash size={14} />
       </button>
     </div>
   );
