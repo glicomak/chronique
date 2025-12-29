@@ -86,7 +86,7 @@ function ContentPane({
   }, [content]);
 
   return (
-    <main className="flex-1 bg-(--color-bg-strong) p-4">
+    <main className="flex-1 bg-(--color-bg-strong) p-4 overflow-y-scroll">
       {id ? (
         <>
           <p className="mb-4">
