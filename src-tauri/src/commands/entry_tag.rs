@@ -1,14 +1,10 @@
-use crate::models::{EntryMetadata};
+use crate::models::EntryMetadata;
 use crate::utils::get_dir;
 
 use tauri::AppHandle;
 
 #[tauri::command]
-pub fn add_tag_to_entry(
-    app: AppHandle,
-    entry_id: String,
-    tag_id: String
-) -> Result<(), String> {
+pub fn add_tag_to_entry(app: AppHandle, entry_id: String, tag_id: String) -> Result<(), String> {
     let entry_dir = get_dir(&app, format!("entries/{entry_id}"));
     let mut entry_metadata_path = entry_dir.clone();
     entry_metadata_path.push("metadata.json");
@@ -24,15 +20,13 @@ pub fn add_tag_to_entry(
 
     let updated_entry_json =
         serde_json::to_string_pretty(&entry_metadata).map_err(|e| e.to_string())?;
-    std::fs::write(&entry_metadata_path, updated_entry_json)
-        .map_err(|e| e.to_string())?;
+    std::fs::write(&entry_metadata_path, updated_entry_json).map_err(|e| e.to_string())?;
 
     let tag_dir = get_dir(&app, format!("tags/{tag_id}"));
     let mut tag_entries_path = tag_dir.clone();
     tag_entries_path.push("entries.txt");
 
-    let existing_entries = std::fs::read_to_string(&tag_entries_path)
-        .unwrap_or_default();
+    let existing_entries = std::fs::read_to_string(&tag_entries_path).unwrap_or_default();
     if !existing_entries.lines().any(|line| line == entry_id) {
         use std::io::Write;
         let mut file = std::fs::OpenOptions::new()
@@ -51,7 +45,7 @@ pub fn add_tag_to_entry(
 pub fn remove_tag_from_entry(
     app: AppHandle,
     entry_id: String,
-    tag_id: String
+    tag_id: String,
 ) -> Result<(), String> {
     let entry_dir = get_dir(&app, format!("entries/{entry_id}"));
     let mut entry_metadata_path = entry_dir.clone();
@@ -67,8 +61,7 @@ pub fn remove_tag_from_entry(
         let updated_entry_json =
             serde_json::to_string_pretty(&entry_metadata).map_err(|e| e.to_string())?;
 
-        std::fs::write(&entry_metadata_path, updated_entry_json)
-            .map_err(|e| e.to_string())?;
+        std::fs::write(&entry_metadata_path, updated_entry_json).map_err(|e| e.to_string())?;
     }
 
     let tag_dir = get_dir(&app, format!("tags/{tag_id}"));
@@ -85,8 +78,7 @@ pub fn remove_tag_from_entry(
         .collect();
     if filtered.len() != entries_str.lines().count() {
         let new_contents = filtered.join("\n");
-        std::fs::write(tag_entries_path, new_contents + "\n")
-            .map_err(|e| e.to_string())?;
+        std::fs::write(tag_entries_path, new_contents + "\n").map_err(|e| e.to_string())?;
     }
 
     Ok(())

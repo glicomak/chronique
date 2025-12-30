@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
 import ContentPane from "./components/ContentPane";
+import Settings from "./components/Settings";
 import SidePane from "./components/SidePane";
 import TagManager from "./components/TagManager";
 
@@ -13,6 +14,7 @@ function App() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagMap, setTagMap] = useState<Record<string, Tag>>({});
   const [isTagManagerOpen, setIsTagManagerOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     invoke<EntryMetadata[]>("get_entries")
@@ -63,10 +65,11 @@ function App() {
   return (
     <>
       <div className="h-screen w-screen flex">
-        <SidePane setIsTagManagerOpen={setIsTagManagerOpen} entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} deleteEntry={deleteEntry} tagMap={tagMap} />
+        <SidePane setIsTagManagerOpen={setIsTagManagerOpen} setIsSettingsOpen={setIsSettingsOpen} entries={entries} setEntries={setEntries} currentEntry={currentEntry} setCurrentEntry={setCurrentEntry} deleteEntry={deleteEntry} tagMap={tagMap} />
         <ContentPane id={currentEntry} setEntries={setEntries} tagMap={tagMap} />
       </div>
       <TagManager tags={tags} setTags={setTags} deleteTag={deleteTag} isOpen={isTagManagerOpen} onClose={() => setIsTagManagerOpen(false)} />
+      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }

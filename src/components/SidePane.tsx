@@ -1,12 +1,13 @@
 import React, { SetStateAction, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
-import { Plus, Tags } from "lucide-react";
+import { Plus, Settings, Tags } from "lucide-react";
 
 import EntryItem from "./EntryItem";
 
 function SidePane({
   setIsTagManagerOpen,
+  setIsSettingsOpen,
   entries,
   setEntries,
   currentEntry,
@@ -15,6 +16,7 @@ function SidePane({
   tagMap
 }: {
   setIsTagManagerOpen: React.Dispatch<SetStateAction<boolean>>,
+  setIsSettingsOpen: React.Dispatch<SetStateAction<boolean>>,
   entries: EntryMetadata[],
   setEntries: React.Dispatch<SetStateAction<EntryMetadata[]>>,
   currentEntry: string | null,
@@ -30,6 +32,13 @@ function SidePane({
         <div className="flex items-center justify-between m-4">
           <h1 className="text-xl font-medium">CHRONIQUE</h1>
           <div className="flex items-center gap-1">
+            <button
+              className="h-8 w-8 flex items-center justify-center rounded
+                        hover:bg-white/10 transition-colors cursor-pointer"
+              onClick={() => setIsSettingsOpen(true)}
+            >
+              <Settings size={18} strokeWidth={2} />
+            </button>
             <button
               className="h-8 w-8 flex items-center justify-center rounded
                         hover:bg-white/10 transition-colors cursor-pointer"

@@ -1,8 +1,9 @@
-type Tag = {
+type Entry = {
   id: string,
-  name: string,
-  bgColor: string,
-  fgColor: string
+  datetime: string,
+  title: string,
+  tags: string[],
+  content: string
 }
 
 type EntryMetadata = {
@@ -12,10 +13,13 @@ type EntryMetadata = {
   tags: string[]
 }
 
-type Entry = {
+type Settings = {
+  dataPath: string
+}
+
+type Tag = {
   id: string,
-  datetime: string,
-  title: string,
-  tags: string[],
-  content: string
+  name: string,
+  bgColor: string,
+  fgColor: string
 }
